@@ -192,11 +192,9 @@ class LaskerMorris:
 
 
 #TO FIX : Return correct score for correct player 
-    def evaluate(self,isBlueTurn):
+    def evaluate(self):
         bluePieces = self.boardData[8][0]
-        print(bluePieces)
         orangePieces = self.boardData[8][1]
-        print(orangePieces)
         blueMills = self.countMills(1) 
         orangeMills = self.countMills(2)  
 
@@ -205,7 +203,7 @@ class LaskerMorris:
         score += (blueMills - orangeMills) * 10 
         print(score)
 
-        return score if self.isBlueTurn else -score
+        return score if self.isPlayer == 1 else -score
 
     def countMills(self, player):
         count = 0
@@ -219,7 +217,7 @@ class LaskerMorris:
     def minimax(self, depth, alpha, beta, is_maximizing, player_id):
         """Minimax algorithm with alpha-beta pruning."""
         if depth == 0:
-            return self.evaluate(self,isBlueTurn=player_id)
+            return self.evaluate(self)
 
         possible_moves = self.get_possible_moves(player_id)
         if not possible_moves:
@@ -236,7 +234,7 @@ class LaskerMorris:
             return max_eval
         else:
             min_eval = float('inf')
-            opponent_id = "blue" if player_id == "orange" else "orange"
+            opponent_id = 1 if player_id == 2 else 2
             for move in possible_moves:
                 eval_score = self.minimax(depth - 1, alpha, beta, True, opponent_id)
                 min_eval = min(min_eval, eval_score)
