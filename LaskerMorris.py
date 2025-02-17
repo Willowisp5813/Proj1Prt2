@@ -139,7 +139,7 @@ class LaskerMorris:
     def isOnlyMills(self, isBlueTurn):
         valueToCheck = 2 if isBlueTurn else 1
         onlyMills = True
-        for i in range(7):
+        for i in range(8):
             for j in range(3):
                 if(self.boardData[i][j] == valueToCheck):
                     onlyMills = self.isPartOfMill([i, j])
@@ -166,8 +166,29 @@ class LaskerMorris:
             return True
 
         #Check for imobilization
+        if(self.imobilized(self.isBlueTurn)):
+            self.gameFinished = True
+            return True
         
         
+    def imobilized(self, isBlueTurn):
+        valueToCheck = 1 if isBlueTurn else 2
+        if(isBlueTurn and self.boardData[8, 0] > 0 or not isBlueTurn and self.boardData[8, 1] > 0):
+            return False
+        
+        imobilized = True
+        for i in range(8):
+            for j in range(3):
+                if(self.boardData[i][j] == valueToCheck):
+                    adjSpaces = getAdjacent([i, j])
+                    for x in adjSpaces:
+                        imobilized = self.boardData[x[0]][x[1]] != 0
+                        if(not imobilized):
+                            return False
+        
+        return True
+
+
 
         
 
