@@ -2,10 +2,11 @@ def getAdjacent(node):
     output = []
     output.append([8, 0])
     output.append([8, 1])
-    output.append([node[0], 0])
-    output.append([node[0], 1])
-    output.append([node[0], 2])
-    output.remove(node)
+    if(node[1] == 0 or node[1] == 2):
+        output.append([node[0], 1])
+    else:
+        output.append([node[0], 0])
+        output.append([node[0], 2])
 
     if(node[0] == 0):
         if(node[1] == 1):
