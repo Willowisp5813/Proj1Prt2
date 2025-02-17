@@ -14,6 +14,7 @@ class LaskerMorris:
         self.blueTotalTiles = 10
         self.orangeTotalTiles = 10
         self.gameFinished = False
+        self.isPlayer = 0
 
     def __str__(self):
         return (f"{self.boardData[7][0]}     {self.boardData[7][1]}     {self.boardData[7][2]}\n" + \
