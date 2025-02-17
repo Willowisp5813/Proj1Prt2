@@ -86,8 +86,9 @@ class LaskerMorris:
         
         if(self.isPartOfMill(moveTo)):
             self.stalemate_counter = 0
-            if(self.isPartOfMill(takeFrom)):
-                #NEED TO CHECK IF ALL OPPONENTS STONES ARE IN MILLS!!!!
+            if(takeFrom == [8, 2]):
+                pass
+            elif(self.isPartOfMill(takeFrom) and not self.isOnlyMills(self.isBlueTurn)):
                 print("invalide move: removing stone that is in a mill")
                 self.gameFinished = True
                 return
@@ -134,6 +135,19 @@ class LaskerMorris:
                 return True
             
         return False
+
+    def isOnlyMills(self, isBlueTurn):
+        valueToCheck = 2 if isBlueTurn else 1
+        onlyMills = True
+        for i in range(7):
+            for j in range(3):
+                if(self.boardData[i][j] == valueToCheck):
+                    onlyMills = self.isPartOfMill([i, j])
+                    if(not onlyMills):
+                        return False
+
+        return onlyMills
+
     
     def checkGameEnd(self, timeElapsed):
         if(self.gameFinished):
@@ -150,6 +164,8 @@ class LaskerMorris:
         if(timeElapsed >= self.time_limit):
             self.gameFinished = True
             return True
+
+        #Check for imobilization
         
         
 
