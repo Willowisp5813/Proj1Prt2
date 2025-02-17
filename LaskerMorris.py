@@ -3,18 +3,19 @@ from AdjacencyMatrix import getAdjacent
 import time
 
 class LaskerMorris:
-    def __init__(self, isBlueTurn):
-        self.isBlueTurn = isBlueTurn
+    def __init__(self):
+        self.isBlueTurn = True
         self.time_limit = 5 #seconds per turn
         self.stalemate_threshold = 20 #number of consecutive moves with no mill formed or stone removed
         self.stalemate_counter = 0
         self.boardData = [[0 for col in range(3)] for row in range(9)]
-        self.boardData[8][0] = 10
-        self.boardData[8][1] = 10
+        self.boardData[8][0] = 10 #Blues hand
+        self.boardData[8][1] = 10 #Oranges hand
         self.blueTotalTiles = 10
         self.orangeTotalTiles = 10
         self.gameFinished = False
         self.isPlayer = 0
+        #blue player is 1, orange player is 2
 
     def __str__(self):
         return (f"{self.boardData[7][0]}     {self.boardData[7][1]}     {self.boardData[7][2]}\n" + \
@@ -162,9 +163,9 @@ class LaskerMorris:
             self.gameFinished = True
             return True
         
-        if(timeElapsed >= self.time_limit):
+        '''if(timeElapsed >= self.time_limit):
             self.gameFinished = True
-            return True
+            return True'''
 
         #Check for imobilization
         if(self.imobilized(self.isBlueTurn)):
