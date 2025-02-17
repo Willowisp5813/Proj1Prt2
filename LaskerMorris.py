@@ -191,8 +191,73 @@ class LaskerMorris:
         return True
 
 
+#TO FIX : Return correct score for correct player 
+    def evaluate(self,isBlueTurn):
+        bluePieces = self.boardData[8][0]
+        print(bluePieces)
+        orangePieces = self.boardData[8][1]
+        print(orangePieces)
+        blueMills = self.countMills(1) 
+        orangeMills = self.countMills(2)  
 
-        
+        score = 0
+        score += (bluePieces - orangePieces) * 5  
+        score += (blueMills - orangeMills) * 10 
+        print(score)
+
+        return score if self.isBlueTurn else -score
+
+    def countMills(self, player):
+        count = 0
+        for i in range(9):
+            for j in range(3):
+                if self.boardData[i][j] == player and self.isPartOfMill([i, j]):
+                    count += 1
+        return count
+
+#TO FIX: getpossible moves function and pass playerid to eval 
+    def minimax(self, depth, alpha, beta, is_maximizing, player_id):
+        """Minimax algorithm with alpha-beta pruning."""
+        if depth == 0:
+            return self.evaluate(self,isBlueTurn=player_id)
+
+        possible_moves = self.get_possible_moves(player_id)
+        if not possible_moves:
+            return self.evaluate(player_id)
+
+        if is_maximizing:
+            max_eval = float('-inf')
+            for move in possible_moves:
+                eval_score = self.minimax(depth - 1, alpha, beta, False, player_id)
+                max_eval = max(max_eval, eval_score)
+                alpha = max(alpha, eval_score)
+                if beta <= alpha:
+                    break
+            return max_eval
+        else:
+            min_eval = float('inf')
+            opponent_id = "blue" if player_id == "orange" else "orange"
+            for move in possible_moves:
+                eval_score = self.minimax(depth - 1, alpha, beta, True, opponent_id)
+                min_eval = min(min_eval, eval_score)
+                beta = min(beta, eval_score)
+                if beta <= alpha:
+                    break
+            return min_eval
+
+    def best_move(self, player_id, depth=3):
+        """Determine the best move using minimax algorithm with alpha-beta pruning."""
+        possible_moves = self.generate_moves(player_id)
+        best_score = float('-inf')
+        best_choice = None
+
+        for move in possible_moves:
+            score = self.minimax(depth - 1, float('-inf'), float('inf'), False, player_id)
+            if score > best_score:
+                best_score = score
+                best_choice = move
+
+        return best_choice 
 
 
     def getIndex(self, move):
