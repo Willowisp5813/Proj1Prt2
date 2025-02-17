@@ -90,7 +90,7 @@ class LaskerMorris:
             self.stalemate_counter = 0
             if(takeFrom == [8, 2]):
                 pass
-            elif(self.isPartOfMill(takeFrom) and not self.isOnlyMills(self.isBlueTurn)):
+            elif(self.isPartOfMill(takeFrom, self.boardData) and not self.isOnlyMills(self.isBlueTurn)):
                 print("invalide move: removing stone that is in a mill")
                 self.gameFinished = True
                 return
@@ -127,13 +127,13 @@ class LaskerMorris:
             print("invalid move: moving from a non-adjacent space")
             return False
     
-    def isPartOfMill(self, moveTo):
+    def isPartOfMill(self, moveTo, boardData):
         millIndexes = getMillIndex(moveTo)
-        playerValue = self.boardData[moveTo[0]][moveTo[1]]
+        playerValue = boardData[moveTo[0]][moveTo[1]]
         for i in range(2):
-            if(self.boardData[millIndexes[i][0][0]][millIndexes[i][0][1]] == playerValue and \
-                self.boardData[millIndexes[i][1][0]][millIndexes[i][1][1]] == playerValue and \
-                self.boardData[millIndexes[i][2][0]][millIndexes[i][2][1]] == playerValue): 
+            if(boardData[millIndexes[i][0][0]][millIndexes[i][0][1]] == playerValue and \
+                boardData[millIndexes[i][1][0]][millIndexes[i][1][1]] == playerValue and \
+                boardData[millIndexes[i][2][0]][millIndexes[i][2][1]] == playerValue): 
                 return True
             
         return False
@@ -144,7 +144,7 @@ class LaskerMorris:
         for i in range(8):
             for j in range(3):
                 if(self.boardData[i][j] == valueToCheck):
-                    onlyMills = self.isPartOfMill([i, j])
+                    onlyMills = self.isPartOfMill([i, j], self.boardData)
                     if(not onlyMills):
                         return False
 
@@ -192,11 +192,11 @@ class LaskerMorris:
 
 
 #TO FIX : Return correct score for correct player 
-    def evaluate(self):
-        bluePieces = self.boardData[8][0]
-        orangePieces = self.boardData[8][1]
-        blueMills = self.countMills(1) 
-        orangeMills = self.countMills(2)  
+    def evaluate(self, boardNode):
+        bluePieces = boardNode.boardData[8][0]
+        orangePieces = boardNode.boardData[8][1]
+        blueMills = self.countMills(1, boardNode.boardData) 
+        orangeMills = self.countMills(2, boardNode.boardData)  
 
         score = 0
         score += (bluePieces - orangePieces) * 5  
@@ -205,28 +205,28 @@ class LaskerMorris:
 
         return score if self.isPlayer == 1 else -score
 
-    def countMills(self, player):
+    def countMills(self, player, boardData):
         count = 0
         for i in range(9):
             for j in range(3):
-                if self.boardData[i][j] == player and self.isPartOfMill([i, j]):
+                if boardData[i][j] == player and self.isPartOfMill([i, j], boardData):
                     count += 1
         return count
 
 #TO FIX: getpossible moves function and pass playerid to eval 
-    def minimax(self, depth, alpha, beta, is_maximizing, player_id):
+    def minimax(self, node, depth, alpha, beta, is_maximizing, player_id):
         """Minimax algorithm with alpha-beta pruning."""
         if depth == 0:
-            return self.evaluate(self)
+            return self.evaluate(node)
 
         possible_moves = self.get_possible_moves(player_id)
         if not possible_moves:
-            return self.evaluate(player_id)
+            return self.evaluate(node)
 
         if is_maximizing:
             max_eval = float('-inf')
             for move in possible_moves:
-                eval_score = self.minimax(depth - 1, alpha, beta, False, player_id)
+                eval_score = self.minimax(depth - 1, move, alpha, beta, False, player_id)
                 max_eval = max(max_eval, eval_score)
                 alpha = max(alpha, eval_score)
                 if beta <= alpha:
@@ -236,7 +236,7 @@ class LaskerMorris:
             min_eval = float('inf')
             opponent_id = 1 if player_id == 2 else 2
             for move in possible_moves:
-                eval_score = self.minimax(depth - 1, alpha, beta, True, opponent_id)
+                eval_score = self.minimax(depth - 1, node, alpha, beta, True, opponent_id)
                 min_eval = min(min_eval, eval_score)
                 beta = min(beta, eval_score)
                 if beta <= alpha:
@@ -250,10 +250,10 @@ class LaskerMorris:
         best_choice = None
 
         for move in possible_moves:
-            score = self.minimax(depth - 1, float('-inf'), float('inf'), False, player_id)
+            score = self.minimax(depth - 1, move, float('-inf'), float('inf'), False, player_id)
             if score > best_score:
                 best_score = score
-                best_choice = move
+                best_choice = move.move
 
         return best_choice 
 

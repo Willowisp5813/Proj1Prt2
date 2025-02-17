@@ -18,6 +18,7 @@ while(not gameBoard.gameFinished):
         #if is blues turn and you are blue, make move
         if(gameBoard.isPlayer == 1):
             move = gameBoard.best_move()
+            gameBoard.makeMove(move)
             print("h1 a1 r0")
         #else wait for move
         else:
@@ -27,6 +28,7 @@ while(not gameBoard.gameFinished):
         #if is oranges turn and you are orange, make move
         if(gameBoard.isPlayer == 2):
             move = gameBoard.best_move()
+            gameBoard.makeMove(move)
             print("h2 b2 r0")
         #else wait for move
         else:
