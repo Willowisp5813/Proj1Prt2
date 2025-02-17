@@ -1,6 +1,7 @@
 from MillIndex import getMillIndex
 from AdjacencyMatrix import getAdjacent
 import time
+from MinMaxNode import MinMaxNode
 
 class LaskerMorris:
     def __init__(self):
@@ -219,7 +220,7 @@ class LaskerMorris:
         if depth == 0:
             return self.evaluate(node)
 
-        possible_moves = self.get_possible_moves(player_id)
+        possible_moves = self.generate_moves(node, player_id)
         if not possible_moves:
             return self.evaluate(node)
 
@@ -245,7 +246,8 @@ class LaskerMorris:
 
     def best_move(self, player_id, depth=3):
         """Determine the best move using minimax algorithm with alpha-beta pruning."""
-        possible_moves = self.generate_moves(player_id)
+        root = MinMaxNode(self.boardData.__deepcopy__(), None, None)
+        possible_moves = self.generate_moves(root, player_id)
         best_score = float('-inf')
         best_choice = None
 
@@ -256,6 +258,16 @@ class LaskerMorris:
                 best_choice = move.move
 
         return best_choice 
+    
+    def generate_moves(self, node, player_id):
+        output = [] #array of MinMaxNode objects that are the children of this node
+        handId = [8, 0] if player_id == 1 else [8, 1]
+        for i in range(9):
+            if(i == 8): #check moves from the hand
+
+            for j in range(3):
+                #check moves from each board state
+
 
 
     def getIndex(self, move):

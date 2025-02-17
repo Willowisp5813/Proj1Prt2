@@ -1,5 +1,5 @@
 class MinMaxNode:
-    def __init__(self, boardData, move, parent):
+    def __init__(self, boardData, moveToHere, parent):
         self.boardData = boardData
-        self.move = move
+        self.moveToHere = moveToHere
         self.parent = parent
