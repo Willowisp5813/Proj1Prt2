@@ -261,12 +261,98 @@ class LaskerMorris:
     
     def generate_moves(self, node, player_id):
         output = [] #array of MinMaxNode objects that are the children of this node
-        handId = [8, 0] if player_id == 1 else [8, 1]
-        for i in range(9):
+        board = node.boardData
+        is_blue_turn = (player_id == 1)
+        handId = board[8][0] if is_blue_turn else board[8][1]
+        opponent_id = 2 if is_blue_turn else 1
+        player_pieces = 0
+        movable_positions = []
+        
+        #count player's pieces on board and collect the movable positions
+        for row in range(8):
+            for col in range(3):
+                if board[row][col] == player_id:
+                    player_pieces+= 1
+                    movable_positions.append((row, col))
+
+        #handle case for if hand still has pieces left
+        if handId > 0:
+            for row in range(8):
+                for col in range(3):
+                    if board[row][col] == 0: #this means the spot is empty
+                        move = ([8, 0] if is_blue_turn else [8, 1], [row, col], [8, 2])
+                        board[row][col] = player_id  #temporarily place a piece here
+                        if self.isPartOfMill([row, col], board):
+                            capture_moves = self.getValidCaptures(board, opponent_id)
+                            for capture in capture_moves:
+                                output.append((move[0], move[1], capture))
+                            else:
+                                output.append(move)
+                            board[row][col] = 0 #this is a reset
+
+        #handle case for if hand has no pieces left
+        elif handId > 3:
+            for piece in movable_positions:
+                adjacentPositions = getAdjacent(piece)
+                for moveTo in adjacentPositions:
+                    if board[moveTo[0]][moveTo[1]] == 0:    #checking only empty spots
+                        move = (piece, moveTo, [8, 2])      #no capture
+                        board[piece[0]][piece[1]] = 0       #temporary piece move
+                        board[moveTo[0]][moveTo[1]] = player_id 
+                        if self.isPartOfMill(moveTo, board):
+                            capture_moves = self.getValidCaptures(board, opponent_id)
+                            for capture in capture_moves:
+                                output.append((move[0], move[1], capture))
+                        else:
+                            output.append(move)
+                        board[piece[0]][piece[1]] = player_id   #this is a reset
+                        board[moveTo[0]][moveTo[1]] = 0
+
+        #handle case for if hand has 3 or less pieces
+        elif player_pieces == 3:
+            for piece in movable_positions:
+                for row in range(8):
+                    for col in range(3):
+                        if board[row][col] == 0:                #checking only empty spots
+                            move = (piece, [row, col], [8, 2])  #no capture
+                            board[piece[0]][piece[1]] = 0       #temporary piece move
+                            board[row][col] = player_id
+                            if self.isPartOfMill([row, col], board):
+                                capture_moves = self.getValidCaptures(board, opponent_id)
+                                for capture in capture_moves:
+                                    output.append((move[0], move[1], capture))
+                            else:
+                                output.append(move)
+                            board[piece[0]][piece[1]] = player_id   #this is a reset
+                            board[row][col] = 0
+                    
+        return output
+
+        
+        """ for i in range(9):
             if(i == 8): #check moves from the hand
 
             for j in range(3):
-                #check moves from each board state
+                #check moves from each board state """
+        
+    def getValidCaptures(self, board, opponent_id):
+
+        #get all valid capture moves for a player
+            #note: player must have just formed a mill
+        captureMoves = []
+        for row in range(8):
+            for col in range(3):
+                if board[row][col] == opponent_id and not self.isPartOfMill([row, col], board):
+                    captureMoves.append([row, col])
+
+        #handles situation where if all opponent pieces are in mills, allow any capture
+        if not captureMoves:
+            for row in range(8):
+                for col in range(3):
+                    if board[row][col] == opponent_id:
+                        captureMoves.append([row, col])
+
+        return captureMoves
 
 
 
