@@ -10,7 +10,7 @@ def main():
     playerValue = sys.stdin.readline().strip()
 
     #handle incorrect player assignment
-    if gameBoard.isPlayer not in ["blue", "orange"]:
+    if playerValue not in ["blue", "orange"]:
         print("Invalid start input:", gameBoard.isPlayer, file=sys.stderr)
         return
 
@@ -32,9 +32,10 @@ def main():
         if gameBoard.isPlayer == player_id:
             move = gameBoard.best_move(player_id)
             if move and len(move) == 3:
-                gameBoard.makeMove(move)
-                move_str = f"{move[0]} {move[1]} {move[2]}"
+                move_str = gameBoard.convertToList(move)
+                gameBoard.makeMove(move_str)
                 print(move_str, flush=True)
+                print(gameBoard)
             else:
                 print("No valid moves available", file=sys.stderr, flush=True)
                 sys.exit(1)
@@ -55,12 +56,8 @@ def main():
                     sys.exit(1)
                 
                 try:
-                    move = [
-                        gameBoard.getIndex(move_parts[0]),
-                        gameBoard.getIndex(move_parts[1]),
-                        gameBoard.getIndex(move_parts[2])
-                    ]
-                    gameBoard.makeMove(move)
+                    gameBoard.makeMove(move_parts)
+                    print(gameBoard)
                     
                 except Exception as e:
                     print(f"Error processing move input: {move_input}, Error: {e}", file=sys.stderr, flush=True)

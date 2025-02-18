@@ -1,3 +1,4 @@
+import copy
 from MillIndex import getMillIndex
 from AdjacencyMatrix import getAdjacent
 import time
@@ -87,7 +88,7 @@ class LaskerMorris:
             self.gameFinished = True
             return
         
-        if(self.isPartOfMill(moveTo)):
+        if(self.isPartOfMill(moveTo, self.boardData)):
             self.stalemate_counter = 0
             if(takeFrom == [8, 2]):
                 pass
@@ -176,7 +177,7 @@ class LaskerMorris:
         
     def imobilized(self, isBlueTurn):
         valueToCheck = 1 if isBlueTurn else 2
-        if(isBlueTurn and self.boardData[8, 0] > 0 or not isBlueTurn and self.boardData[8, 1] > 0):
+        if(isBlueTurn and self.boardData[8][0] > 0 or not isBlueTurn and self.boardData[8][1] > 0):
             return False
         
         imobilized = True
@@ -202,7 +203,7 @@ class LaskerMorris:
         score = 0
         score += (bluePieces - orangePieces) * 5  
         score += (blueMills - orangeMills) * 10 
-        print(score)
+        #print(score)
 
         return score if self.isPlayer == 1 else -score
 
@@ -227,7 +228,7 @@ class LaskerMorris:
         if is_maximizing:
             max_eval = float('-inf')
             for move in possible_moves:
-                eval_score = self.minimax(depth - 1, move, alpha, beta, False, player_id)
+                eval_score = self.minimax(move, depth - 1, alpha, beta, False, player_id)
                 max_eval = max(max_eval, eval_score)
                 alpha = max(alpha, eval_score)
                 if beta <= alpha:
@@ -237,7 +238,7 @@ class LaskerMorris:
             min_eval = float('inf')
             opponent_id = 1 if player_id == 2 else 2
             for move in possible_moves:
-                eval_score = self.minimax(depth - 1, node, alpha, beta, True, opponent_id)
+                eval_score = self.minimax(move, depth - 1, alpha, beta, True, opponent_id)
                 min_eval = min(min_eval, eval_score)
                 beta = min(beta, eval_score)
                 if beta <= alpha:
@@ -246,17 +247,18 @@ class LaskerMorris:
 
     def best_move(self, player_id, depth=3):
         """Determine the best move using minimax algorithm with alpha-beta pruning."""
-        root = MinMaxNode(self.boardData.__deepcopy__(), None, None)
+        root = MinMaxNode(copy.deepcopy(self.boardData), None, None)
         possible_moves = self.generate_moves(root, player_id)
         best_score = float('-inf')
         best_choice = None
 
         for move in possible_moves:
-            score = self.minimax(depth - 1, move, float('-inf'), float('inf'), False, player_id)
+            score = self.minimax(move, depth - 1, float('-inf'), float('inf'), False, player_id)
             if score > best_score:
                 best_score = score
-                best_choice = move.move
+                best_choice = move.moveToHere
 
+        print(best_choice)
         return best_choice 
     
     def generate_moves(self, node, player_id):
@@ -285,9 +287,9 @@ class LaskerMorris:
                         if self.isPartOfMill([row, col], board):
                             capture_moves = self.getValidCaptures(board, opponent_id)
                             for capture in capture_moves:
-                                output.append((move[0], move[1], capture))
+                                output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node))
                             else:
-                                output.append(move)
+                                output.append(MinMaxNode(copy.deepcopy(board), move, node))
                             board[row][col] = 0 #this is a reset
 
         #handle case for if hand has no pieces left
@@ -302,9 +304,9 @@ class LaskerMorris:
                         if self.isPartOfMill(moveTo, board):
                             capture_moves = self.getValidCaptures(board, opponent_id)
                             for capture in capture_moves:
-                                output.append((move[0], move[1], capture))
+                                output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node))
                         else:
-                            output.append(move)
+                            output.append(MinMaxNode(copy.deepcopy(board), move, node))
                         board[piece[0]][piece[1]] = player_id   #this is a reset
                         board[moveTo[0]][moveTo[1]] = 0
 
@@ -320,9 +322,9 @@ class LaskerMorris:
                             if self.isPartOfMill([row, col], board):
                                 capture_moves = self.getValidCaptures(board, opponent_id)
                                 for capture in capture_moves:
-                                    output.append((move[0], move[1], capture))
+                                    output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node))
                             else:
-                                output.append(move)
+                                output.append(MinMaxNode(copy.deepcopy(board), move, node))
                             board[piece[0]][piece[1]] = player_id   #this is a reset
                             board[row][col] = 0
                     
@@ -412,3 +414,63 @@ class LaskerMorris:
                 return [7, 2]
             case _:
                 return [8, 2]
+            
+    def convertToList(self, move):
+        output = []
+        for part in move:
+            match part:
+                case [8, 0]:
+                    output.append("h1")
+                case [8, 1]:
+                    output.append("h2")
+                case [0, 0]:
+                    output.append("a1")
+                case [0, 1]:
+                    output.append("d1")
+                case [0, 2]:
+                    output.append("g1")
+                case [1, 0]:
+                    output.append("b2")
+                case [1, 1]:
+                    output.append("d2")
+                case [1, 2]:
+                    output.append("f2")
+                case [2, 0]:
+                    output.append("c3")
+                case [2, 1]:
+                    output.append("d3")
+                case [2, 2]:
+                    output.append("e3")
+                case [3, 0]:
+                    output.append("a4")
+                case [3, 1]:
+                    output.append("b4")
+                case [3, 2]:
+                    output.append("c4")
+                case [4, 0]:
+                    output.append("e4")
+                case [4, 1]:
+                    output.append("f4")
+                case [4, 2]:
+                    output.append("g4")
+                case [5, 0]:
+                    output.append("c5")
+                case [5, 1]:
+                    output.append("d5")
+                case [5, 2]:
+                    output.append("e5")
+                case [6, 0]:
+                    output.append("b6")
+                case [6, 1]:
+                    output.append("d6")
+                case [6, 2]:
+                    output.append("f6")
+                case [7, 0]:
+                    output.append("a7")
+                case [7, 1]:
+                    output.append("d7")
+                case [7, 2]:
+                    output.append("g7")
+                case _:
+                    output.append("r0")
+        return output
