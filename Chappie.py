@@ -20,7 +20,6 @@ def main():
         #isBlueTurn is true by default, no change needed here
     elif(playerValue == "orange"):
         gameBoard.isPlayer = 2
-        gameBoard.isBlueTurn = False
     else:
         print(f"Invalid player input: {playerValue}", file=sys.stderr, flush=True)
         sys.exit(1)
@@ -34,8 +33,7 @@ def main():
             if move and len(move) == 3:
                 move_str = gameBoard.convertToList(move)
                 gameBoard.makeMove(move_str)
-                print(move_str, flush=True)
-                print(gameBoard)
+                print(f"{move_str[0]} {move_str[1]} {move_str[2]}", flush=True)
             else:
                 print("No valid moves available", file=sys.stderr, flush=True)
                 sys.exit(1)
@@ -57,7 +55,6 @@ def main():
                 
                 try:
                     gameBoard.makeMove(move_parts)
-                    print(gameBoard)
                     
                 except Exception as e:
                     print(f"Error processing move input: {move_input}, Error: {e}", file=sys.stderr, flush=True)

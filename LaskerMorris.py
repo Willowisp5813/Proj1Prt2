@@ -247,7 +247,7 @@ class LaskerMorris:
 
     def best_move(self, player_id, depth=3):
         """Determine the best move using minimax algorithm with alpha-beta pruning."""
-        root = MinMaxNode(copy.deepcopy(self.boardData), None, None)
+        root = MinMaxNode(copy.deepcopy(self.boardData), None, None, self.isBlueTurn)
         possible_moves = self.generate_moves(root, player_id)
         best_score = float('-inf')
         best_choice = None
@@ -258,7 +258,7 @@ class LaskerMorris:
                 best_score = score
                 best_choice = move.moveToHere
 
-        print(best_choice)
+        #print(best_choice)
         return best_choice 
     
     def generate_moves(self, node, player_id):
@@ -277,6 +277,8 @@ class LaskerMorris:
                     player_pieces+= 1
                     movable_positions.append((row, col))
 
+        player_pieces += handId
+
         #handle case for if hand still has pieces left
         if handId > 0:
             for row in range(8):
@@ -287,13 +289,14 @@ class LaskerMorris:
                         if self.isPartOfMill([row, col], board):
                             capture_moves = self.getValidCaptures(board, opponent_id)
                             for capture in capture_moves:
-                                output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node))
-                            else:
-                                output.append(MinMaxNode(copy.deepcopy(board), move, node))
-                            board[row][col] = 0 #this is a reset
+                                output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node, not node.isBlueTurn))
+                        else:
+                            output.append(MinMaxNode(copy.deepcopy(board), move, node, not node.isBlueTurn))
+                        board[row][col] = 0 #this is a reset
+
 
         #handle case for if hand has no pieces left
-        elif handId > 3:
+        if player_pieces > 3:
             for piece in movable_positions:
                 adjacentPositions = getAdjacent(piece)
                 for moveTo in adjacentPositions:
@@ -304,13 +307,13 @@ class LaskerMorris:
                         if self.isPartOfMill(moveTo, board):
                             capture_moves = self.getValidCaptures(board, opponent_id)
                             for capture in capture_moves:
-                                output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node))
+                                output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node, not node.isBlueTurn))
                         else:
-                            output.append(MinMaxNode(copy.deepcopy(board), move, node))
+                            output.append(MinMaxNode(copy.deepcopy(board), move, node, not node.isBlueTurn))
                         board[piece[0]][piece[1]] = player_id   #this is a reset
                         board[moveTo[0]][moveTo[1]] = 0
 
-        #handle case for if hand has 3 or less pieces
+        #handle case for if player has 3 or less pieces
         elif player_pieces == 3:
             for piece in movable_positions:
                 for row in range(8):
@@ -322,9 +325,9 @@ class LaskerMorris:
                             if self.isPartOfMill([row, col], board):
                                 capture_moves = self.getValidCaptures(board, opponent_id)
                                 for capture in capture_moves:
-                                    output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node))
+                                    output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node, not node.isBlueTurn))
                             else:
-                                output.append(MinMaxNode(copy.deepcopy(board), move, node))
+                                output.append(MinMaxNode(copy.deepcopy(board), move, node, not node.isBlueTurn))
                             board[piece[0]][piece[1]] = player_id   #this is a reset
                             board[row][col] = 0
                     
