@@ -25,6 +25,23 @@ def main():
         sys.exit(1)
         #gameBoard.gameFinished = True
 
+    '''gameBoard.makeMove(["h1", "a1", "r0"])
+    gameBoard.makeMove(["h2", "d1", "r0"])
+    gameBoard.makeMove(["h1", "g1", "r0"])
+    gameBoard.makeMove(["h2", "b2", "r0"])
+    gameBoard.makeMove(["h1", "d2", "r0"])
+    gameBoard.makeMove(["h2", "f2", "r0"])
+    gameBoard.makeMove(["h1", "c3", "r0"])
+    gameBoard.makeMove(["h2", "d3", "r0"])
+    gameBoard.makeMove(["h1", "e3", "r0"])
+    gameBoard.makeMove(["h2", "a4", "r0"])
+    gameBoard.makeMove(["h1", "b4", "r0"])
+    gameBoard.makeMove(["h2", "c4", "r0"])
+    gameBoard.makeMove(["h1", "e4", "r0"])
+    gameBoard.makeMove(["h2", "f4", "r0"])
+    gameBoard.makeMove(["h1", "g4", "r0"])
+    print(gameBoard)'''
+
     while(not gameBoard.gameFinished):
         player_id = 1 if gameBoard.isBlueTurn else 2
         
@@ -33,6 +50,7 @@ def main():
             if move and len(move) == 3:
                 move_str = gameBoard.convertToList(move)
                 gameBoard.makeMove(move_str)
+                #print(gameBoard)
                 print(f"{move_str[0]} {move_str[1]} {move_str[2]}", flush=True)
             else:
                 print("No valid moves available", file=sys.stderr, flush=True)

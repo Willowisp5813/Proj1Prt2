@@ -3,6 +3,7 @@ from MillIndex import getMillIndex
 from AdjacencyMatrix import getAdjacent
 import time
 from MinMaxNode import MinMaxNode
+import random
 
 class LaskerMorris:
     def __init__(self):
@@ -85,6 +86,7 @@ class LaskerMorris:
 
             self.boardData[moveTo[0]][moveTo[1]] = (1 if self.isBlueTurn else 2)
         else:
+            print(f"{move}")
             self.gameFinished = True
             return
         
@@ -93,7 +95,7 @@ class LaskerMorris:
             if(takeFrom == [8, 2]):
                 pass
             elif(self.isPartOfMill(takeFrom, self.boardData) and not self.isOnlyMills(self.isBlueTurn)):
-                print("invalide move: removing stone that is in a mill")
+                print("invalid move: removing stone that is in a mill")
                 self.gameFinished = True
                 return
             else: 
@@ -116,9 +118,12 @@ class LaskerMorris:
         self.checkGameEnd(timeElapsed)
 
     def validMove(self, moveFrom, moveTo):
+        if((moveFrom == [8, 0] and self.isBlueTurn) or (moveFrom == [8, 1] and not self.isBlueTurn)):
+            return True
+        
         if(self.boardData[moveFrom[0]][moveFrom[1]] == 0 or \
            self.boardData[moveFrom[0]][moveFrom[1]] == (2 if self.isBlueTurn else 1)):
-            print("invalid move: moving from empty space, or moving opponent's stone")
+            print(f"invalid move: moving from empty space, or moving opponent's stone {moveFrom} {moveTo}")
             return False
         
         if((self.isBlueTurn and self.blueTotalTiles) <= 3 or (not self.isBlueTurn and self.orangeTotalTiles <= 3)):
@@ -126,7 +131,7 @@ class LaskerMorris:
         elif(moveFrom in getAdjacent(moveTo)):
             return True
         else:
-            print("invalid move: moving from a non-adjacent space")
+            print(f"invalid move: moving from a non-adjacent space {moveFrom} {moveTo}")
             return False
     
     def isPartOfMill(self, moveTo, boardData):
@@ -205,11 +210,17 @@ class LaskerMorris:
         score += (blueMills - orangeMills) * 10 
         #print(score)
 
+        if boardNode.moveToHere[2] != [8, 2]:
+            if((boardNode.isBlueTurn and self.isPlayer == 2) or (not boardNode.isBlueTurn and self.isPlayer == 1)):
+                score -= 50
+            else:
+                score += 50
+
         return score if self.isPlayer == 1 else -score
 
     def countMills(self, player, boardData):
         count = 0
-        for i in range(9):
+        for i in range(8):
             for j in range(3):
                 if boardData[i][j] == player and self.isPartOfMill([i, j], boardData):
                     count += 1
@@ -294,7 +305,6 @@ class LaskerMorris:
                             output.append(MinMaxNode(copy.deepcopy(board), move, node, not node.isBlueTurn))
                         board[row][col] = 0 #this is a reset
 
-
         #handle case for if hand has no pieces left
         if player_pieces > 3:
             for piece in movable_positions:
@@ -330,7 +340,8 @@ class LaskerMorris:
                                 output.append(MinMaxNode(copy.deepcopy(board), move, node, not node.isBlueTurn))
                             board[piece[0]][piece[1]] = player_id   #this is a reset
                             board[row][col] = 0
-                    
+
+        random.shuffle(output)        
         return output
 
         
