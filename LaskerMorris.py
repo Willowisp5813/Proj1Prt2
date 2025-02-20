@@ -298,7 +298,7 @@ class LaskerMorris:
                         move = ([8, 0] if is_blue_turn else [8, 1], [row, col], [8, 2])
                         board[row][col] = player_id  #temporarily place a piece here
                         if self.isPartOfMill([row, col], board):
-                            capture_moves = self.getValidCaptures(board, opponent_id)
+                            capture_moves = self.getValidCaptures(board, opponent_id,player_id)
                             for capture in capture_moves:
                                 output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node, not node.isBlueTurn))
                         else:
@@ -315,7 +315,7 @@ class LaskerMorris:
                         board[piece[0]][piece[1]] = 0       #temporary piece move
                         board[moveTo[0]][moveTo[1]] = player_id 
                         if self.isPartOfMill(moveTo, board):
-                            capture_moves = self.getValidCaptures(board, opponent_id)
+                            capture_moves = self.getValidCaptures(board, opponent_id,player_id)
                             for capture in capture_moves:
                                 output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node, not node.isBlueTurn))
                         else:
@@ -333,7 +333,7 @@ class LaskerMorris:
                             board[piece[0]][piece[1]] = 0       #temporary piece move
                             board[row][col] = player_id
                             if self.isPartOfMill([row, col], board):
-                                capture_moves = self.getValidCaptures(board, opponent_id)
+                                capture_moves = self.getValidCaptures(board, opponent_id,player_id)
                                 for capture in capture_moves:
                                     output.append(MinMaxNode(copy.deepcopy(board), [move[0], move[1], capture], node, not node.isBlueTurn))
                             else:
@@ -351,17 +351,30 @@ class LaskerMorris:
             for j in range(3):
                 #check moves from each board state """
         
-    def getValidCaptures(self, board, opponent_id):
-
-        #get all valid capture moves for a player
-            #note: player must have just formed a mill
+    def getValidCaptures(self, board, opponent_id, player_id):
         captureMoves = []
+        
+        # Check if the player has formed a mill
+        mill_formed = False
         for row in range(8):
             for col in range(3):
-                if board[row][col] == opponent_id and not self.isPartOfMill([row, col], board):
-                    captureMoves.append([row, col])
+                if board[row][col] == player_id and self.isPartOfMill([row, col], board):
+                    mill_formed = True
+                    break
+            if mill_formed:
+                break
 
-        #handles situation where if all opponent pieces are in mills, allow any capture
+        # Only allow capture moves if a mill has been formed
+        if mill_formed:
+            for row in range(8):
+                for col in range(3):
+                    if board[row][col] == opponent_id and not self.isPartOfMill([row, col], board):
+                        captureMoves.append([row, col])
+        else:
+            print("Invalid move: Cannot remove opponent's stone - move does not form a mill")
+            captureMoves = []  # Don't allow captures if no mill is formed
+
+        # If all opponent pieces are in mills, allow any capture
         if not captureMoves:
             for row in range(8):
                 for col in range(3):
@@ -369,6 +382,7 @@ class LaskerMorris:
                         captureMoves.append([row, col])
 
         return captureMoves
+
 
 
 
